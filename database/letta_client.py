@@ -44,12 +44,12 @@ class LettaMedicalDB:
         try:
             response = self.session.get(f"{self.base_url}/api/health", timeout=2)
             if response.status_code == 200:
-                logger.info("✅ Letta server connesso")
+                logger.info("Letta server connesso")
             else:
-                logger.warning(f"⚠️  Letta server risponde ma con status {response.status_code}")
+                logger.warning(f"Letta server risponde ma con status {response.status_code}")
         except (RequestException, ConnectionError) as e:
-            logger.warning(f"⚠️  Letta server non raggiungibile: {e}")
-            logger.info("💡 Sistema userà fallback MemoryDB")
+            logger.warning(f"Letta server non raggiungibile: {e}")
+            logger.info("Sistema userà fallback MemoryDB")
     
     def _get_or_create_agent(self, patient_id: str) -> Optional[str]:
         """
@@ -93,11 +93,11 @@ class LettaMedicalDB:
             agent_id = agent_data["id"]
             
             self.agents_cache[patient_id] = agent_id
-            logger.info(f"✅ Creato agente Letta per {patient_id}")
+            logger.info(f"Creato agente Letta per {patient_id}")
             return agent_id
             
         except Exception as e:
-            logger.error(f"❌ Errore gestione agente: {e}")
+            logger.error(f"Errore gestione agente: {e}")
             return None
     
     def authenticate_patient(self, patient_id: str, pin: str) -> bool:
@@ -111,7 +111,7 @@ class LettaMedicalDB:
             return True
             
         except Exception as e:
-            logger.error(f"❌ Errore autenticazione: {e}")
+            logger.error(f"Errore autenticazione: {e}")
             return False
     
     def store_appointment(self, patient_id: str, appointment_data: Dict) -> Optional[Dict]:
@@ -142,11 +142,11 @@ Stato: {appointment_data.get('status', 'confirmed')}"""
             )
             response.raise_for_status()
             
-            logger.info(f"✅ Appuntamento salvato per {patient_id}")
+            logger.info(f"Appuntamento salvato per {patient_id}")
             return appointment_data
             
         except Exception as e:
-            logger.error(f"❌ Errore salvataggio: {e}")
+            logger.error(f"Errore salvataggio: {e}")
             return None
     
     def get_appointments(self, patient_id: str) -> List[Dict]:
@@ -174,7 +174,7 @@ Stato: {appointment_data.get('status', 'confirmed')}"""
             return []
             
         except Exception as e:
-            logger.error(f"❌ Errore recupero: {e}")
+            logger.error(f"Errore recupero: {e}")
             return []
     
     def search_in_memory(self, patient_id: str, query: str) -> str:
@@ -204,7 +204,7 @@ Stato: {appointment_data.get('status', 'confirmed')}"""
             return str(data)
             
         except Exception as e:
-            logger.error(f"❌ Errore ricerca: {e}")
+            logger.error(f"Errore ricerca: {e}")
             return f"Errore: {str(e)}"
     
     def is_available(self) -> bool:

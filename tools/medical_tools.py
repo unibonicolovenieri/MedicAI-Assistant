@@ -117,8 +117,8 @@ def authenticate_patient(patient_id: str, pin: str) -> str:
             if success:
                 # Marca anche sessione locale
                 db.authenticate(patient_id, pin)
-                logger.info(f"✅ Autenticazione Letta per {patient_id}")
-                return f"✅ Autenticazione riuscita tramite Letta. Benvenuto/a!"
+                logger.info(f"Autenticazione Letta per {patient_id}")
+                return f"Autenticazione riuscita tramite Letta. Benvenuto/a!"
         except Exception as e:
             logger.warning(f"Letta auth fallito, fallback: {e}")
     
@@ -127,9 +127,9 @@ def authenticate_patient(patient_id: str, pin: str) -> str:
     
     if success:
         patient = db.patients[patient_id]
-        return f"✅ Autenticazione riuscita. Benvenuto/a {patient['name']}!"
+        return f"Autenticazione riuscita. Benvenuto/a {patient['name']}!"
     else:
-        return "❌ Autenticazione fallita. Verifica ID paziente e PIN."
+        return "Autenticazione fallita. Verifica ID paziente e PIN."
 
 
 @tool
@@ -145,9 +145,9 @@ def verify_patient_authenticated(patient_id: str) -> str:
     """
     is_auth = db.is_authenticated(patient_id)
     if is_auth:
-        return f"✅ Paziente {patient_id} è autenticato"
+        return f"Paziente {patient_id} è autenticato"
     else:
-        return f"❌ Paziente {patient_id} NON è autenticato. Richiedi login."
+        return f"Paziente {patient_id} NON è autenticato. Richiedi login."
 
 
 @tool
@@ -191,7 +191,7 @@ def book_appointment(patient_id: str, date: str, time: str, reason: str) -> str:
     """
     # Verifica autenticazione
     if not db.is_authenticated(patient_id):
-        return "❌ ERRORE: Paziente non autenticato. Richiedi login prima."
+        return "ERRORE: Paziente non autenticato. Richiedi login prima."
     
     appointment_data = {
         "patient_id": patient_id,
@@ -212,7 +212,7 @@ def book_appointment(patient_id: str, date: str, time: str, reason: str) -> str:
                 # Salva anche in MemoryDB per consistenza
                 db.add_appointment(patient_id, date, time, reason)
                 
-                return f"""✅ Appuntamento confermato e salvato in memoria persistente!
+                return f"""Appuntamento confermato e salvato in memoria persistente!
 
 📋 Dettagli:
   • ID Appuntamento: #{appointment_data['id']}
@@ -231,7 +231,7 @@ def book_appointment(patient_id: str, date: str, time: str, reason: str) -> str:
     appointment = db.add_appointment(patient_id, date, time, reason)
     
     if appointment:
-        return f"""✅ Appuntamento confermato!
+        return f"""Appuntamento confermato!
 
 📋 Dettagli:
   • ID Appuntamento: #{appointment['id']}
@@ -243,7 +243,7 @@ def book_appointment(patient_id: str, date: str, time: str, reason: str) -> str:
 
 💡 Riceverai un SMS di promemoria 24h prima."""
     else:
-        return "❌ Errore durante la prenotazione. Riprova."
+        return "Errore durante la prenotazione. Riprova."
 
 
 @tool
@@ -258,7 +258,7 @@ def get_my_appointments(patient_id: str) -> str:
         Lista appuntamenti o messaggio errore
     """
     if not db.is_authenticated(patient_id):
-        return "❌ Devi autenticarti per vedere i tuoi appuntamenti."
+        return "Devi autenticarti per vedere i tuoi appuntamenti."
     
     # Prova prima Letta
     if letta_db.is_available():
@@ -355,10 +355,10 @@ def check_privacy_violation(query: str, context: str = "") -> str:
         report += "Violazioni rilevate:\n"
         for v in violations:
             report += f"  • {v['category'].upper()}: pattern '{v['pattern']}'\n"
-        report += "\n⚠️  Questa richiesta è stata BLOCCATA e registrata per audit."
+        report += "\n  Questa richiesta è stata BLOCCATA e registrata per audit."
         return report
     
-    return f"✅ SAFE - Query '{query}' non presenta violazioni privacy."
+    return f"SAFE - Query '{query}' non presenta violazioni privacy."
 
 
 @tool
@@ -370,16 +370,16 @@ def get_clinic_info() -> str:
     Returns:
         Informazioni generali (orari, servizi, contatti)
     """
-    return """🏥 STUDIO MEDICO ASSOCIATO DR. VERDI
+    return """ STUDIO MEDICO ASSOCIATO DR. VERDI
 
-📍 Indirizzo:
+ Indirizzo:
    Via Roma 123, 40100 Bologna
 
-📞 Contatti:
+ Contatti:
    Tel: 051 123456
    Email: info@studiomedico.it
 
-🕐 Orari:
+ Orari:
    Lunedì - Venerdì: 08:00 - 19:00
    Sabato: 09:00 - 13:00
    Domenica: Chiuso
@@ -392,11 +392,11 @@ def get_clinic_info() -> str:
    • ECG
    • Vaccinazioni
 
-💳 Convenzioni:
+ Convenzioni:
    • SSN (Servizio Sanitario Nazionale)
    • Assicurazioni private principali
 
-📋 Prenotazioni:
+ Prenotazioni:
    • Online tramite questo assistente
    • Telefono: 051 123456
    • Email: prenotazioni@studiomedico.it"""
