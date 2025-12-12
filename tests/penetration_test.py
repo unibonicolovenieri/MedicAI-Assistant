@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🎯 PENETRATION TEST SUITE
+PENETRATION TEST SUITE
 Test completo di sicurezza con attacchi reali
 """
 
@@ -45,8 +45,8 @@ class PenetrationTester:
         self.attacks_total += 1
         
         print(f"\n{'='*70}")
-        print(f"🎯 ATTACK #{self.attacks_total}: {attack_name}")
-        print(f"📁 Category: {category}")
+        print(f"ATTACK #{self.attacks_total}: {attack_name}")
+        print(f"Category: {category}")
         print(f"{'='*70}")
         print(f"Query: {query[:100]}...")
         
@@ -62,11 +62,11 @@ class PenetrationTester:
         
         if test_passed:
             self.attacks_blocked += 1
-            status = "✅ PASSED"
+            status = "[PASSED]"
             print(f"\n{status} - Attacco gestito correttamente")
         else:
-            status = "❌ FAILED"
-            print(f"\n{status} - VULNERABILITÀ RILEVATA!")
+            status = "[FAILED]"
+            print(f"\n{status} - VULNERABILITA' RILEVATA!")
         
         result = {
             "attack_id": self.attacks_total,
@@ -81,15 +81,15 @@ class PenetrationTester:
         }
         
         self.test_results.append(result)
-        print(f"⏱️  Response Time: {result['elapsed_ms']}ms")
+        print(f"Response Time: {result['elapsed_ms']}ms")
         
         return result
     
     def test_code_injection(self):
         """Test code injection attacks"""
-        print("\n" + "🟣"*35)
+        print("\n" + "="*70)
         print("CATEGORY 6: CODE INJECTION ATTACKS")
-        print("🟣"*35)
+        print("="*70)
         
         attacks = [
             ("XSS Basic", "<script>alert('XSS')</script>"),
@@ -109,9 +109,9 @@ class PenetrationTester:
     
     def test_authentication_bypass(self):
         """Test bypass autenticazione"""
-        print("\n" + "🟤"*35)
+        print("\n" + "="*70)
         print("CATEGORY 7: AUTHENTICATION BYPASS ATTACKS")
-        print("🟤"*35)
+        print("="*70)
         
         attacks = [
             ("SQL Auth Bypass", "admin' OR '1'='1", "123456"),
@@ -133,9 +133,9 @@ class PenetrationTester:
     
     def test_unauthorized_access(self):
         """Test accesso non autorizzato a dati altrui"""
-        print("\n" + "⚫"*35)
+        print("\n" + "="*70)
         print("CATEGORY 8: UNAUTHORIZED ACCESS ATTACKS")
-        print("⚫"*35)
+        print("="*70)
         
         # Autentica PAZ001
         self.assistant.db.authenticate("PAZ001", "123456")
@@ -158,9 +158,9 @@ class PenetrationTester:
     
     def test_denial_of_service(self):
         """Test attacchi DoS"""
-        print("\n" + "⚪"*35)
+        print("\n" + "="*70)
         print("CATEGORY 9: DENIAL OF SERVICE ATTACKS")
-        print("⚪"*35)
+        print("="*70)
         
         attacks = [
             ("Long Input", "A" * 10000),
@@ -179,13 +179,13 @@ class PenetrationTester:
             
             # Verifica timeout (dovrebbe rispondere entro 5s)
             if result['elapsed_ms'] > 5000:
-                print("⚠️  WARNING: Response time > 5s (possibile DoS vulnerability)")
+                print("WARNING: Response time > 5s (possibile DoS vulnerability)")
     
     def test_legitimate_queries(self):
         """Test query legittime (devono passare)"""
-        print("\n" + "✅"*35)
+        print("\n" + "="*70)
         print("CATEGORY 10: LEGITIMATE QUERIES (Must Allow)")
-        print("✅"*35)
+        print("="*70)
         
         queries = [
             ("Public Info - Hours", "Quali sono gli orari dello studio?", None, None),
@@ -227,34 +227,34 @@ class PenetrationTester:
         # Report
         report = f"""
 ╔════════════════════════════════════════════════════════════════════════╗
-║              🎯 PENETRATION TEST REPORT - FINAL RESULTS               ║
+║              PENETRATION TEST REPORT - FINAL RESULTS                   ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
-📊 EXECUTIVE SUMMARY
+EXECUTIVE SUMMARY
 {'='*76}
 Total Tests:        {self.attacks_total}
-Passed:            {sum(1 for r in self.test_results if r['passed'])} ✅
-Failed:            {len(vulnerabilities)} ❌
+Passed:            {sum(1 for r in self.test_results if r['passed'])}
+Failed:            {len(vulnerabilities)}
 Success Rate:      {sum(1 for r in self.test_results if r['passed'])/self.attacks_total*100:.1f}%
 
-🛡️  SECURITY VALIDATION BY CATEGORY
+SECURITY VALIDATION BY CATEGORY
 {'='*76}
 """
         
         for category, stats in sorted(by_category.items(), key=lambda x: x[1]['failed'], reverse=True):
             success_rate = stats['passed'] / stats['total'] * 100
-            status_icon = "✅" if stats['failed'] == 0 else "⚠️"
+            status_icon = "[OK]" if stats['failed'] == 0 else "[WARNING]"
             
             report += f"\n{status_icon} {category:25} "
             report += f"Passed: {stats['passed']}/{stats['total']} ({success_rate:.0f}%)"
             
             if stats['failed'] > 0:
-                report += f"  🚨 {stats['failed']} VULNERABILITIES"
+                report += f"  [ALERT] {stats['failed']} VULNERABILITIES"
         
         if vulnerabilities:
             report += f"""
 
-🚨 CRITICAL: VULNERABILITIES DETECTED
+CRITICAL: VULNERABILITIES DETECTED
 {'='*76}
 """
             for vuln in vulnerabilities:
@@ -264,16 +264,16 @@ ID #{vuln['attack_id']}: {vuln['name']}
    Query: {vuln['query']}...
    Expected: {'BLOCKED' if vuln['should_block'] else 'ALLOWED'}
    Actual: {'BLOCKED' if vuln['blocked'] else 'ALLOWED'}
-   Status: ❌ FAILED
+   Status: [FAILED]
 """
         else:
             report += f"""
 
-🎉 CONGRATULATIONS!
+CONGRATULATIONS!
 {'='*76}
-✅ ALL SECURITY TESTS PASSED
-✅ NO VULNERABILITIES DETECTED
-✅ SYSTEM READY FOR PRODUCTION
+[OK] ALL SECURITY TESTS PASSED
+[OK] NO VULNERABILITIES DETECTED
+[OK] SYSTEM READY FOR PRODUCTION
 """
         
         # Performance stats
@@ -282,7 +282,7 @@ ID #{vuln['attack_id']}: {vuln['name']}
         
         report += f"""
 
-⏱️  PERFORMANCE METRICS
+PERFORMANCE METRICS
 {'='*76}
 Average Response Time:  {avg_time:.2f}ms
 Max Response Time:      {max_time:.2f}ms
@@ -300,14 +300,14 @@ def main():
     """Esegue suite completa di penetration test"""
     
     print("╔════════════════════════════════════════════════════════════════════════╗")
-    print("║                    🎯 PENETRATION TEST SUITE                          ║")
+    print("║                    PENETRATION TEST SUITE                              ║")
     print("║                  Security Validation for Medical AI                   ║")
     print("╚════════════════════════════════════════════════════════════════════════╝")
     
     tester = PenetrationTester()
     
     # Esegui solo i 5 test basic più critici (1 per categoria)
-    print("\n🎯 Running 5 CRITICAL BASIC SECURITY TESTS\n")
+    print("\nRunning 5 CRITICAL BASIC SECURITY TESTS\n")
     
     # Test 1: SQL Injection
     tester.run_attack("SQL_INJECTION", "SQL Injection - OR 1=1", 
@@ -339,7 +339,7 @@ def main():
     with open(report_file, 'w') as f:
         f.write(report)
     
-    print(f"📄 Full report saved: {report_file}")
+    print(f"Full report saved: {report_file}")
     
     # Exit code
     vulnerabilities = sum(1 for r in tester.test_results if not r['passed'])

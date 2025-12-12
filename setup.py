@@ -20,13 +20,13 @@ def print_header(text):
     print(f"{BLUE}{'='*70}{RESET}\n")
 
 def print_success(text):
-    print(f"{GREEN}✅ {text}{RESET}")
+    print(f"{GREEN} {text}{RESET}")
 
 def print_warning(text):
-    print(f"{YELLOW}⚠️  {text}{RESET}")
+    print(f"{YELLOW} {text}{RESET}")
 
 def print_error(text):
-    print(f"{RED}❌ {text}{RESET}")
+    print(f"{RED} {text}{RESET}")
 
 def run_command(cmd, check=True):
     """Esegui comando shell"""
@@ -64,7 +64,7 @@ def check_venv():
         return True
     else:
         print_warning("Virtual environment non attivo")
-        print("\n💡 Attiva con:")
+        print("\nAttiva con:")
         print("   python3 -m venv venv")
         print("   source venv/bin/activate")
         return False
@@ -90,7 +90,7 @@ def check_dependencies():
             all_ok = False
     
     if not all_ok:
-        print("\n💡 Installa con:")
+        print("\nInstalla con:")
         print("   pip install -r requirements.txt")
     
     return all_ok
@@ -103,7 +103,7 @@ def check_env_file():
     
     if not env_file.exists():
         print_warning(".env non trovato")
-        print("\n💡 Crea da template:")
+        print("\nCrea da template:")
         print("   cp .env.example .env")
         print("   # Poi edita .env e inserisci GEMINI_API_KEY")
         return False
@@ -116,7 +116,7 @@ def check_env_file():
             return True
         else:
             print_warning(".env presente ma GEMINI_API_KEY non configurata")
-            print("\n💡 Edita .env e inserisci la tua API key")
+            print("\nEdita .env e inserisci la tua API key")
             return False
 
 def check_letta_server():
@@ -126,7 +126,7 @@ def check_letta_server():
     # Check se letta è installato
     if not run_command("which letta", check=False):
         print_warning("Letta CLI non installato")
-        print("\n💡 Installa con:")
+        print("\nInstalla con:")
         print("   pip install letta")
         return False
     
@@ -136,7 +136,7 @@ def check_letta_server():
         return True
     else:
         print_warning("Letta server non in esecuzione")
-        print("\n💡 Avvia con:")
+        print("\nAvvia con:")
         print("   letta server")
         print("\nNOTA: Sistema funziona anche senza Letta (usa fallback in-memory)")
         return False
@@ -158,9 +158,9 @@ def main():
     """Main setup flow"""
     os.chdir(Path(__file__).parent)
     
-    print(f"\n{BLUE}{'🏥'*35}{RESET}")
+    print(f"\n{BLUE}{'='*35}{RESET}")
     print(f"{BLUE}MEDICAL AI ASSISTANT - SETUP{RESET}".center(80))
-    print(f"{BLUE}{'🏥'*35}{RESET}")
+    print(f"{BLUE}{'='*35}{RESET}")
     
     results = {
         'Python': check_python_version(),
@@ -180,24 +180,24 @@ def main():
         if status:
             print_success(f"{check}")
         else:
-            symbol = "⚠️ " if check == "Letta" else "❌"
+            symbol = "WARNING: " if check == "Letta" else "ERROR: "
             print(f"{symbol} {check}")
     
     print()
     
     if critical_ok:
         print_success("Setup base completato! Sistema pronto.")
-        print("\n🚀 Avvia con:")
+        print("\nAvvia con:")
         print("   python main.py")
         
         if not results['Letta']:
-            print("\n💡 Per funzionalità complete:")
+            print("\nPer funzionalità complete:")
             print("   1. pip install letta")
             print("   2. letta server")
             print("   3. python main.py")
         
         # Opzionale: run tests
-        print("\n🧪 Vuoi eseguire i test? (y/n): ", end='')
+        print("\nVuoi eseguire i test? (y/n): ", end='')
         if input().lower() == 'y':
             run_tests()
         

@@ -175,7 +175,7 @@ def get_available_slots(date: str) -> str:
     occupied = ["10:00", "15:00"]
     available = [s for s in slots if s not in occupied]
     
-    return f"📅 Slot disponibili per {date}:\n" + "\n".join(f"  • {slot}" for slot in available)
+    return f"Slot disponibili per {date}:\n" + "\n".join(f"  - {slot}" for slot in available)
 
 
 @tool
@@ -211,22 +211,22 @@ def book_appointment(patient_id: str, date: str, time: str, reason: str) -> str:
         try:
             letta_result = letta_db.store_appointment(patient_id, appointment_data)
             if letta_result:
-                logger.info(f"✅ Appuntamento salvato in Letta per {patient_id}")
+                logger.info(f"Appuntamento salvato in Letta per {patient_id}")
                 # Salva anche in MemoryDB per consistenza
                 db.add_appointment(patient_id, date, time, reason)
                 
                 return f"""Appuntamento confermato e salvato in memoria persistente!
 
-📋 Dettagli:
-  • ID Appuntamento: #{appointment_data['id']}
-  • Data: {date}
-  • Orario: {time}
-  • Medico: Dr. Verdi
-  • Tipo visita: {reason}
-  • Stato: confirmed
+Dettagli:
+  - ID Appuntamento: #{appointment_data['id']}
+  - Data: {date}
+  - Orario: {time}
+  - Medico: Dr. Verdi
+  - Tipo visita: {reason}
+  - Stato: confirmed
 
-💡 Riceverai un SMS di promemoria 24h prima.
-🧠 Letta AI ha memorizzato questo appuntamento."""
+Riceverai un SMS di promemoria 24h prima.
+Letta AI ha memorizzato questo appuntamento."""
         except Exception as e:
             logger.warning(f"Letta booking fallito: {e}")
     
@@ -236,15 +236,15 @@ def book_appointment(patient_id: str, date: str, time: str, reason: str) -> str:
     if appointment:
         return f"""Appuntamento confermato!
 
-📋 Dettagli:
-  • ID Appuntamento: #{appointment['id']}
-  • Data: {appointment['date']}
-  • Orario: {appointment['time']}
-  • Medico: {appointment['doctor']}
-  • Tipo visita: {appointment['type']}
-  • Stato: {appointment['status']}
+Dettagli:
+  - ID Appuntamento: #{appointment['id']}
+  - Data: {appointment['date']}
+  - Orario: {appointment['time']}
+  - Medico: {appointment['doctor']}
+  - Tipo visita: {appointment['type']}
+  - Stato: {appointment['status']}
 
-💡 Riceverai un SMS di promemoria 24h prima."""
+Riceverai un SMS di promemoria 24h prima."""
     else:
         return "Errore durante la prenotazione. Riprova."
 
@@ -268,14 +268,14 @@ def get_my_appointments(patient_id: str) -> str:
         try:
             letta_appointments = letta_db.get_appointments(patient_id)
             if letta_appointments:
-                result = f"📅 I tuoi appuntamenti ({len(letta_appointments)}) da Letta:\n\n"
+                result = f"I tuoi appuntamenti ({len(letta_appointments)}) da Letta:\n\n"
                 for apt in letta_appointments:
                     result += f"""━━━━━━━━━━━━━━━━━━━━━━
-🆔 Appuntamento #{apt.get('id', 'N/A')}
-📅 {apt['date']} ore {apt['time']}
-👨‍⚕️ Con {apt.get('doctor', 'Dr. Verdi')}
-📋 {apt['type']}
-✅ Stato: {apt.get('status', 'confirmed')}
+ID Appuntamento: #{apt.get('id', 'N/A')}
+Data: {apt['date']} ore {apt['time']}
+Medico: {apt.get('doctor', 'Dr. Verdi')}
+Tipo: {apt['type']}
+Stato: {apt.get('status', 'confirmed')}
 
 """
                 return result
@@ -286,16 +286,16 @@ def get_my_appointments(patient_id: str) -> str:
     appointments = db.get_appointments(patient_id)
     
     if not appointments:
-        return "📅 Non hai appuntamenti programmati al momento."
+        return "Non hai appuntamenti programmati al momento."
     
-    result = f"📅 I tuoi appuntamenti ({len(appointments)}):\n\n"
+    result = f"I tuoi appuntamenti ({len(appointments)}):\n\n"
     for apt in appointments:
         result += f"""━━━━━━━━━━━━━━━━━━━━━━
-🆔 Appuntamento #{apt['id']}
-📅 {apt['date']} ore {apt['time']}
-👨‍⚕️ Con {apt['doctor']}
-📋 {apt['type']}
-✅ Stato: {apt['status']}
+ID Appuntamento: #{apt['id']}
+Data: {apt['date']} ore {apt['time']}
+Medico: {apt['doctor']}
+Tipo: {apt['type']}
+Stato: {apt['status']}
 
 """
     return result
@@ -353,12 +353,12 @@ def check_privacy_violation(query: str, context: str = "") -> str:
                 })
     
     if violations:
-        report = "🚨 BLOCKED - PRIVACY VIOLATION DETECTED\n\n"
+        report = "[BLOCKED] - PRIVACY VIOLATION DETECTED\n\n"
         report += f"Query: '{query}'\n\n"
         report += "Violazioni rilevate:\n"
         for v in violations:
-            report += f"  • {v['category'].upper()}: pattern '{v['pattern']}'\n"
-        report += "\n  Questa richiesta è stata BLOCCATA e registrata per audit."
+            report += f"  - {v['category'].upper()}: pattern '{v['pattern']}'\n"
+        report += "\nQuesta richiesta è stata BLOCCATA e registrata per audit."
         return report
     
     return f"SAFE - Query '{query}' non presenta violazioni privacy."
@@ -373,33 +373,33 @@ def get_clinic_info() -> str:
     Returns:
         Informazioni generali (orari, servizi, contatti)
     """
-    return """ STUDIO MEDICO ASSOCIATO DR. VERDI
+    return """STUDIO MEDICO ASSOCIATO DR. VERDI
 
- Indirizzo:
+Indirizzo:
    Via Roma 123, 40100 Bologna
 
- Contatti:
+Contatti:
    Tel: 051 123456
    Email: info@studiomedico.it
 
- Orari:
+Orari:
    Lunedì - Venerdì: 08:00 - 19:00
    Sabato: 09:00 - 13:00
    Domenica: Chiuso
 
-🩺 Servizi:
-   • Medicina Generale
-   • Cardiologia
-   • Dermatologia
-   • Analisi del sangue
-   • ECG
-   • Vaccinazioni
+Servizi:
+   - Medicina Generale
+   - Cardiologia
+   - Dermatologia
+   - Analisi del sangue
+   - ECG
+   - Vaccinazioni
 
- Convenzioni:
-   • SSN (Servizio Sanitario Nazionale)
-   • Assicurazioni private principali
+Convenzioni:
+   - SSN (Servizio Sanitario Nazionale)
+   - Assicurazioni private principali
 
- Prenotazioni:
-   • Online tramite questo assistente
-   • Telefono: 051 123456
-   • Email: prenotazioni@studiomedico.it"""
+Prenotazioni:
+   - Online tramite questo assistente
+   - Telefono: 051 123456
+   - Email: prenotazioni@studiomedico.it"""

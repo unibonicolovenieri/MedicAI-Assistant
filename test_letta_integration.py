@@ -27,11 +27,11 @@ def test_letta_connection():
     letta = get_letta_db()
     
     if letta.is_available():
-        print("✅ Letta client connesso correttamente")
+        print("Letta client connesso correttamente")
         return True
     else:
-        print("❌ Letta non disponibile")
-        print("💡 Avvia server: letta server")
+        print("Letta non disponibile")
+        print("Avvia server: letta server")
         return False
 
 
@@ -44,7 +44,7 @@ def test_agent_creation():
     letta = get_letta_db()
     
     if not letta.is_available():
-        print("⏭️  Skipped - Letta non disponibile")
+        print("Skipped - Letta non disponibile")
         return False
     
     try:
@@ -52,14 +52,14 @@ def test_agent_creation():
         agent_id = letta._get_or_create_agent("TEST_PAZ999")
         
         if agent_id:
-            print(f"✅ Agente creato: {agent_id}")
+            print(f"Agente creato: {agent_id}")
             return True
         else:
-            print("❌ Errore creazione agente")
+            print("Errore creazione agente")
             return False
             
     except Exception as e:
-        print(f"❌ Errore: {e}")
+        print(f"Errore: {e}")
         return False
 
 
@@ -72,7 +72,7 @@ def test_appointment_storage():
     letta = get_letta_db()
     
     if not letta.is_available():
-        print("⏭️  Skipped - Letta non disponibile")
+        print("Skipped - Letta non disponibile")
         return False
     
     try:
@@ -89,16 +89,16 @@ def test_appointment_storage():
         result = letta.store_appointment("TEST_PAZ999", test_appointment)
         
         if result:
-            print("✅ Appuntamento salvato in Letta")
+            print("Appuntamento salvato in Letta")
             print(f"   Data: {test_appointment['date']}")
             print(f"   Orario: {test_appointment['time']}")
             return True
         else:
-            print("❌ Errore salvataggio")
+            print("Errore salvataggio")
             return False
             
     except Exception as e:
-        print(f"❌ Errore: {e}")
+        print(f"Errore: {e}")
         return False
 
 
@@ -111,7 +111,7 @@ def test_memory_search():
     letta = get_letta_db()
     
     if not letta.is_available():
-        print("⏭️  Skipped - Letta non disponibile")
+        print("Skipped - Letta non disponibile")
         return False
     
     try:
@@ -120,11 +120,11 @@ def test_memory_search():
             query="Quali sono i miei appuntamenti?"
         )
         
-        print(f"✅ Risposta Letta:\n{result}")
+        print(f"Risposta Letta:\n{result}")
         return True
         
     except Exception as e:
-        print(f"❌ Errore: {e}")
+        print(f"Errore: {e}")
         return False
 
 
@@ -138,20 +138,20 @@ def test_fallback_mechanism():
     
     # Test che il database di fallback esista
     if "PAZ001" in db.patients:
-        print(f"✅ Fallback database disponibile con {len(db.patients)} pazienti")
+        print(f"Fallback database disponibile con {len(db.patients)} pazienti")
         print(f"   Paziente PAZ001: {db.patients['PAZ001']['name']}")
         print(f"   Appuntamenti: {len(db.appointments)} totali")
         return True
     else:
-        print("❌ Fallback database non funzionante")
+        print("Fallback database non funzionante")
         return False
 
 
 def main():
     """Esegui tutti i test"""
-    print("\n" + "🧪"*35)
+    print("\n" + "="*35)
     print("LETTA AI INTEGRATION TESTS")
-    print("🧪"*35)
+    print("="*35)
     
     results = {
         "Connessione": test_letta_connection(),
@@ -170,18 +170,18 @@ def main():
     total = len(results)
     
     for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "PASS" if result else "FAIL"
         print(f"{status} - {test_name}")
     
     print(f"\nRisultato: {passed}/{total} test passati")
     
     if passed == total:
-        print("\n🎉 Tutti i test passati! Sistema pronto.")
+        print("\nTutti i test passati! Sistema pronto.")
     elif results["Fallback"]:
-        print("\n⚠️  Letta non disponibile ma fallback funziona.")
-        print("💡 Avvia Letta per funzionalità complete: letta server")
+        print("\nLetta non disponibile ma fallback funziona.")
+        print("Avvia Letta per funzionalità complete: letta server")
     else:
-        print("\n❌ Alcuni test falliti. Controlla configurazione.")
+        print("\nAlcuni test falliti. Controlla configurazione.")
     
     return passed == total
 

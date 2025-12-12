@@ -26,6 +26,6 @@ task = Task(
 # Crew
 crew = Crew(agents=[agent], tasks=[task], verbose=True)
 
-print("\n🚀 Starting test...\n")
+print("\nStarting test...\n")
 result = crew.kickoff()
-print(f"\n✅ Result: {result}\n")
+print(f"\nResult: {result}\n")

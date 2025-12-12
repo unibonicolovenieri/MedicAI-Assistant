@@ -28,6 +28,6 @@ task = Task(
 # Crew
 crew = Crew(agents=[info_agent], tasks=[task], verbose=True)
 
-print("\n🚀 Test Medical AI con Ollama...\n")
+print("\nTest Medical AI con Ollama...\n")
 result = crew.kickoff()
-print(f"\n✅ Risposta:\n{result}\n")
+print(f"\nRisposta:\n{result}\n")

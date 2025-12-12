@@ -406,7 +406,6 @@ class AIFirewall:
 # Test suite
 if __name__ == "__main__":
     firewall = AIFirewall()
-    
     print("AI FIREWALL TEST SUITE")
     print("="*70)
     
