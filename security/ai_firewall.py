@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🛡️ AI FIREWALL - Layer di sicurezza ML-based
+AI FIREWALL - Layer di sicurezza ML-based
 Integra detection avanzata oltre i regex deterministici
 """
 
@@ -274,7 +274,7 @@ class AIFirewall:
                 "safe": False,
                 "risk_score": 10,
                 "threats": [{"type": "rate_limit", "category": "RATE_LIMIT", "risk_score": 10, "pattern": rate_msg, "matches": 1}],
-                "recommendation": f"🚨 BLOCKED - {rate_msg}"
+                "recommendation": f"BLOCKED - {rate_msg}"
             }
         
         # 2. RESOURCE LIMIT CHECK - Max 10KB input
@@ -284,7 +284,7 @@ class AIFirewall:
                 "safe": False,
                 "risk_score": 10,
                 "threats": [{"type": "resource_exhaustion", "category": "RESOURCE_EXHAUSTION", "risk_score": 10, "pattern": f"Input size {len(text)} exceeds limit {MAX_INPUT_SIZE}", "matches": 1}],
-                "recommendation": f"🚨 BLOCKED - Input troppo grande ({len(text)} bytes > {MAX_INPUT_SIZE} bytes)"
+                "recommendation": f"BLOCKED - Input troppo grande ({len(text)} bytes > {MAX_INPUT_SIZE} bytes)"
             }
         
         # 3. UNICODE NORMALIZATION
@@ -379,21 +379,21 @@ class AIFirewall:
     def _get_recommendation(cls, risk_score: int, threats: List[Dict]) -> str:
         """Genera raccomandazione basata su risk score"""
         if risk_score >= 9:
-            return "🚨 BLOCK - Minaccia critica rilevata. Logga incidente e notifica admin."
+            return "BLOCK - Minaccia critica rilevata. Logga incidente e notifica admin."
         elif risk_score >= 7:
-            return "⚠️  WARN - Comportamento sospetto. Richiedi autenticazione aggiuntiva."
+            return "WARN - Comportamento sospetto. Richiedi autenticazione aggiuntiva."
         elif risk_score >= 4:
-            return "ℹ️  MONITOR - Attività anomala. Logga per analisi."
+            return "MONITOR - Attività anomala. Logga per analisi."
         else:
-            return "✅ ALLOW - Nessuna minaccia rilevata."
+            return "ALLOW - Nessuna minaccia rilevata."
     
     @classmethod
     def get_threat_report(cls, threats: List[Dict]) -> str:
         """Genera report leggibile delle minacce"""
         if not threats:
-            return "✅ Nessuna minaccia rilevata"
+            return "Nessuna minaccia rilevata"
         
-        report = "🚨 THREAT REPORT\n" + "="*50 + "\n"
+        report = "THREAT REPORT\n" + "="*50 + "\n"
         for i, threat in enumerate(threats, 1):
             report += f"\n{i}. {threat['category']}\n"
             report += f"   Risk Score: {threat['risk_score']}/10\n"
@@ -407,7 +407,7 @@ class AIFirewall:
 if __name__ == "__main__":
     firewall = AIFirewall()
     
-    print("🛡️  AI FIREWALL TEST SUITE")
+    print("AI FIREWALL TEST SUITE")
     print("="*70)
     
     test_cases = [
@@ -451,9 +451,9 @@ if __name__ == "__main__":
         
         result = firewall.scan_input(test['input'])
         
-        print(f"\n🎯 Risk Score: {result['risk_score']}/10")
-        print(f"🔒 Safe: {'✅ YES' if result['safe'] else '🚫 NO'}")
-        print(f"💡 {result['recommendation']}")
+        print(f"\nRisk Score: {result['risk_score']}/10")
+        print(f"Safe: {'YES' if result['safe'] else 'NO'}")
+        print(f"{result['recommendation']}")
         
         if result['threats']:
             print(f"\n{firewall.get_threat_report(result['threats'])}")
@@ -472,12 +472,12 @@ if __name__ == "__main__":
     pii_result = firewall.scan_output(output_with_pii)
     
     print(f"\nOriginal output:\n{output_with_pii}")
-    print(f"\n🔍 PII Found: {len(pii_result['pii_found'])} items")
+    print(f"\nPII Found: {len(pii_result['pii_found'])} items")
     for pii in pii_result['pii_found']:
-        print(f"   • {pii['type']}: {pii['value']}")
+        print(f"   - {pii['type']}: {pii['value']}")
     
-    print(f"\n🛡️  Sanitized output:\n{pii_result['sanitized_text']}")
+    print(f"\nSanitized output:\n{pii_result['sanitized_text']}")
     
     print(f"\n{'='*70}")
-    print("✅ AI FIREWALL TESTS COMPLETED")
+    print("AI FIREWALL TESTS COMPLETED")
     print(f"{'='*70}")
