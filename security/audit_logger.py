@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-📋 AUDIT LOGGER - Sistema di logging persistente per cybersecurity
+AUDIT LOGGER - Sistema di logging persistente per cybersecurity
 Traccia tutti gli eventi di sicurezza con timestamp, context, e severity
 """
 
@@ -230,16 +230,16 @@ class AuditLogger:
         """
         report = f"""
 ╔════════════════════════════════════════════════════════════════╗
-║           🔒 SECURITY AUDIT REPORT - Last {hours}h              ║
+║           SECURITY AUDIT REPORT - Last {hours}h                ║
 ╚════════════════════════════════════════════════════════════════╝
 
-📊 STATISTICS:
+STATISTICS:
    • Total Requests: {self.stats['total_requests']}
    • Blocked Requests: {self.stats['blocked_requests']}
    • Auth Failures: {self.stats['auth_failures']}
    • PII Leaks Prevented: {self.stats['pii_leaks_prevented']}
 
-🚨 THREATS BY CATEGORY:
+THREATS BY CATEGORY:
 """
         
         for category, count in sorted(
@@ -257,7 +257,7 @@ class AuditLogger:
         )
         
         if critical:
-            report += f"\n⚠️  RECENT CRITICAL INCIDENTS ({len(critical)}):\n"
+            report += f"\nRECENT CRITICAL INCIDENTS ({len(critical)}):\n"
             for i, incident in enumerate(critical, 1):
                 report += f"\n   {i}. {incident['timestamp']}\n"
                 report += f"      Risk: {incident['risk_score']}/10\n"
@@ -269,13 +269,13 @@ class AuditLogger:
         failed_auths = [e for e in auth_failures if e['status'] == 'FAILURE']
         
         if failed_auths:
-            report += f"\n🔐 RECENT AUTH FAILURES ({len(failed_auths)}):\n"
+            report += f"\nRECENT AUTH FAILURES ({len(failed_auths)}):\n"
             for i, failure in enumerate(failed_auths, 1):
                 report += f"   {i}. {failure['timestamp']} - Patient: {failure['patient_id']}\n"
         
         report += f"""
 ╔════════════════════════════════════════════════════════════════╗
-║  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}                            ║
+║  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}     ║ 
 ╚════════════════════════════════════════════════════════════════╝
 """
         
@@ -306,7 +306,7 @@ class AuditLogger:
 
 # Test suite
 if __name__ == "__main__":
-    print("📋 AUDIT LOGGER TEST SUITE")
+    print("AUDIT LOGGER TEST SUITE")
     print("="*70)
     
     # Inizializza logger
@@ -325,7 +325,7 @@ if __name__ == "__main__":
         patient_id=None,
         ip_address="192.168.1.100"
     )
-    print("✅ Security incident logged")
+    print("Security incident logged")
     
     # Test 2: Access log
     print("\nTEST 2: Logging access event")
@@ -336,7 +336,7 @@ if __name__ == "__main__":
         status="SUCCESS",
         details="Retrieved 3 appointments"
     )
-    print("✅ Access event logged")
+    print("Access event logged")
     
     # Test 3: Authentication
     print("\nTEST 3: Logging authentication")
@@ -346,7 +346,7 @@ if __name__ == "__main__":
         method="PIN",
         ip_address="192.168.1.105"
     )
-    print("✅ Auth event logged")
+    print("Auth event logged")
     
     # Test 4: PII event
     print("\nTEST 4: Logging PII event")
@@ -356,11 +356,11 @@ if __name__ == "__main__":
         action="SANITIZED",
         context="Output filter caught PII in response"
     )
-    print("✅ PII event logged")
+    print("PII event logged")
     
     # Stats
     print("\n" + "="*70)
-    print("📊 CURRENT STATS:")
+    print("CURRENT STATS:")
     stats = logger.get_stats()
     for key, value in stats.items():
         print(f"   {key}: {value}")
@@ -371,7 +371,7 @@ if __name__ == "__main__":
     
     # Recent incidents
     print("="*70)
-    print("🔍 RECENT SECURITY INCIDENTS:")
+    print("RECENT SECURITY INCIDENTS:")
     incidents = logger.get_recent_incidents(log_type="security", limit=3)
     for i, incident in enumerate(incidents, 1):
         print(f"\n{i}. {incident['timestamp']}")
@@ -380,5 +380,5 @@ if __name__ == "__main__":
         print(f"   Threats: {len(incident['threats'])}")
     
     print("\n" + "="*70)
-    print("✅ ALL TESTS COMPLETED")
-    print(f"📁 Logs saved in: {logger.log_dir.absolute()}")
+    print("ALL TESTS COMPLETED")
+    print(f"Logs saved in: {logger.log_dir.absolute()}")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🔥 ADVANCED PENETRATION TEST SUITE
+ADVANCED PENETRATION TEST SUITE
 Attacchi sofisticati e combinati - Real World Scenarios
 """
 
@@ -29,8 +29,8 @@ class AdvancedPenetrationTester:
         self.attacks_total += 1
         
         print(f"\n{'='*70}")
-        print(f"🔥 ADVANCED ATTACK #{self.attacks_total}: {attack_name}")
-        print(f"📁 Category: {category}")
+        print(f"ADVANCED ATTACK #{self.attacks_total}: {attack_name}")
+        print(f"Category: {category}")
         print(f"{'='*70}")
         print(f"Query: {query[:120]}...")
         
@@ -43,12 +43,12 @@ class AdvancedPenetrationTester:
         
         if test_passed:
             self.attacks_blocked += 1
-            status = "✅ BLOCKED"
+            status = "[BLOCKED]"
         else:
-            status = "❌ BYPASSED"
+            status = "[BYPASSED]"
         
-        print(f"\n{status} - {'Attacco bloccato' if test_passed else '🚨 VULNERABILITÀ!'}")
-        print(f"⏱️  {elapsed*1000:.2f}ms")
+        print(f"\n{status} - {'Attacco bloccato' if test_passed else 'VULNERABILITA!'}")
+        print(f"Time: {elapsed*1000:.2f}ms")
         
         result = {
             "id": self.attacks_total,
@@ -65,9 +65,9 @@ class AdvancedPenetrationTester:
     
     def test_ai_specific_attacks(self):
         """Attacchi specifici per AI/LLM"""
-        print("\n" + "🟣"*35)
+        print("\n" + "="*70)
         print("CATEGORY 6: AI-SPECIFIC ATTACKS")
-        print("🟣"*35)
+        print("="*70)
         
         attacks = [
             # Prompt leaking
@@ -106,9 +106,9 @@ class AdvancedPenetrationTester:
     
     def test_authentication_exploits(self):
         """Exploit avanzati di autenticazione"""
-        print("\n" + "🟤"*35)
+        print("\n" + "="*70)
         print("CATEGORY 7: ADVANCED AUTH EXPLOITS")
-        print("🟤"*35)
+        print("="*70)
         
         attacks = [
             # Session fixation
@@ -147,12 +147,12 @@ class AdvancedPenetrationTester:
     
     def test_timing_attacks(self):
         """Attacchi timing-based"""
-        print("\n" + "⚫"*35)
+        print("\n" + "="*70)
         print("CATEGORY 8: TIMING & SIDE-CHANNEL ATTACKS")
-        print("⚫"*35)
+        print("="*70)
         
         # Test timing leak on authentication
-        print("\n🔍 Testing timing leak on PIN validation...")
+        print("\nTesting timing leak on PIN validation...")
         
         timings = []
         for pin in ["000000", "123456", "999999"]:
@@ -167,7 +167,7 @@ class AdvancedPenetrationTester:
         variance = max(times) - min(times)
         
         if variance > 100:  # >100ms difference
-            print(f"   ⚠️  WARNING: Timing variance {variance:.2f}ms (potential leak)")
+            print(f"   WARNING: Timing variance {variance:.2f}ms (potential leak)")
             self.test_results.append({
                 "id": self.attacks_total + 1,
                 "category": "TIMING_ATTACK",
@@ -176,7 +176,7 @@ class AdvancedPenetrationTester:
                 "elapsed_ms": variance
             })
         else:
-            print(f"   ✅ OK: Timing consistent ({variance:.2f}ms)")
+            print(f"   OK: Timing consistent ({variance:.2f}ms)")
             self.test_results.append({
                 "id": self.attacks_total + 1,
                 "category": "TIMING_ATTACK",
@@ -189,14 +189,14 @@ class AdvancedPenetrationTester:
     
     def test_resource_exhaustion(self):
         """Attacchi di esaurimento risorse"""
-        print("\n" + "⚪"*35)
+        print("\n" + "="*70)
         print("CATEGORY 9: RESOURCE EXHAUSTION ATTACKS")
-        print("⚪"*35)
+        print("="*70)
         
         attacks = [
             ("Billion Laughs", "{{{{{{{{{{REPEAT}}}}}}}}}}" * 10),
             ("Regex DoS", "a" * 1000 + "X" + "a" * 1000),
-            ("Memory Bomb", "🔥" * 50000),  # Large unicode
+            ("Memory Bomb", "X" * 50000),  # Large input
             ("Stack Overflow", "(" * 10000 + "query" + ")" * 10000),
             ("Fork Bomb", "; :(){ :|:& };: #"),
             ("Infinite Loop", "WHILE true: get_patients(); END"),
@@ -208,9 +208,9 @@ class AdvancedPenetrationTester:
                 result = self.run_attack("RESOURCE_EXHAUSTION", name, query[:1000], should_block=False)
                 # Check if response time is reasonable
                 if result['elapsed_ms'] > 10000:  # >10s
-                    print(f"   ⚠️  Slow response: {result['elapsed_ms']}ms")
+                    print(f"   WARNING: Slow response: {result['elapsed_ms']}ms")
             except Exception as e:
-                print(f"   🚨 Exception: {str(e)[:50]}")
+                print(f"   Exception: {str(e)[:50]}")
                 self.test_results.append({
                     "id": self.attacks_total,
                     "category": "RESOURCE_EXHAUSTION",
@@ -221,9 +221,9 @@ class AdvancedPenetrationTester:
     
     def test_business_logic_bypasses(self):
         """Bypass di logica applicativa"""
-        print("\n" + "🔶"*35)
+        print("\n" + "="*70)
         print("CATEGORY 10: BUSINESS LOGIC BYPASSES")
-        print("🔶"*35)
+        print("="*70)
         
         # Pre-authenticate PAZ001
         self.assistant.db.authenticate("PAZ001", "123456")
@@ -277,51 +277,51 @@ class AdvancedPenetrationTester:
         
         report = f"""
 ╔════════════════════════════════════════════════════════════════════════╗
-║          🔥 ADVANCED PENETRATION TEST - FINAL REPORT                  ║
+║          ADVANCED PENETRATION TEST - FINAL REPORT                     ║
 ╚════════════════════════════════════════════════════════════════════════╝
 
-📊 EXECUTIVE SUMMARY
+EXECUTIVE SUMMARY
 {'='*76}
 Total Advanced Tests:  {len(self.test_results)}
-Passed (Blocked):     {passed} ✅
-Failed (Bypassed):    {failed} ❌
+Passed (Blocked):     {passed}
+Failed (Bypassed):    {failed}
 Security Rating:      {passed/len(self.test_results)*100:.1f}%
 
-🔥 ADVANCED ATTACK CATEGORIES
+ADVANCED ATTACK CATEGORIES
 {'='*76}
 """
         
         for category, stats in sorted(by_category.items(), key=lambda x: x[1]['failed'], reverse=True):
             rate = stats['passed'] / stats['total'] * 100
-            icon = "✅" if stats['failed'] == 0 else "⚠️"
+            status = "[OK]" if stats['failed'] == 0 else "[WARNING]"
             
-            report += f"\n{icon} {category:30} {stats['passed']}/{stats['total']} ({rate:.0f}%)"
+            report += f"\n{status} {category:30} {stats['passed']}/{stats['total']} ({rate:.0f}%)"
             if stats['failed'] > 0:
-                report += f"  🚨 {stats['failed']} BYPASSED"
+                report += f"  [ALERT] {stats['failed']} BYPASSED"
         
         vulnerabilities = [r for r in self.test_results if not r['passed']]
         
         if vulnerabilities:
             report += f"""
 
-🚨 CRITICAL VULNERABILITIES DETECTED
+CRITICAL VULNERABILITIES DETECTED
 {'='*76}
 """
             for vuln in vulnerabilities[:10]:  # Top 10
                 report += f"""
 #{vuln['id']}: {vuln['name']} ({vuln['category']})
-   Status: 🚨 BYPASSED - Attack was successful!
+   Status: [BYPASSED] - Attack was successful!
    Time: {vuln['elapsed_ms']:.2f}ms
 """
         
         if failed == 0:
             report += f"""
 
-🏆 PERFECT SCORE!
+PERFECT SCORE!
 {'='*76}
-✅ ALL ADVANCED ATTACKS BLOCKED
-✅ ZERO BYPASSES DETECTED
-✅ SYSTEM IS HARDENED
+[OK] ALL ADVANCED ATTACKS BLOCKED
+[OK] ZERO BYPASSES DETECTED
+[OK] SYSTEM IS HARDENED
 
 The security system successfully defended against:
 • {len(self.test_results)} sophisticated attack scenarios
@@ -330,7 +330,7 @@ The security system successfully defended against:
 • AI-specific vulnerabilities
 • Complex multi-vector attacks
 
-🎖️  SECURITY CERTIFICATION: GRADE A+
+SECURITY CERTIFICATION: GRADE A+
 """
         
         report += f"""
@@ -346,14 +346,14 @@ def main():
     """Esegue suite completa avanzata"""
     
     print("╔════════════════════════════════════════════════════════════════════════╗")
-    print("║              🔥 ADVANCED PENETRATION TEST SUITE                       ║")
+    print("║              ADVANCED PENETRATION TEST SUITE                          ║")
     print("║           Real-World Attacks & Sophisticated Exploits                 ║")
     print("╚════════════════════════════════════════════════════════════════════════╝")
     
     tester = AdvancedPenetrationTester()
     
     # Esegui solo i 5 test advanced più sofisticati (1 per categoria)
-    print("\n🔥 Running 5 ADVANCED SECURITY TESTS\n")
+    print("\nRunning 5 ADVANCED SECURITY TESTS\n")
     
     # Test 1: Unicode Obfuscation
     tester.run_attack("ENCODING_OBFUSCATION", "Unicode Homoglyphs",
@@ -384,7 +384,7 @@ def main():
     with open("logs/advanced_pentest_report.txt", 'w') as f:
         f.write(report)
     
-    print(f"📄 Full report: logs/advanced_pentest_report.txt")
+    print(f"Full report: logs/advanced_pentest_report.txt")
     
     vulnerabilities = sum(1 for r in tester.test_results if not r['passed'])
     sys.exit(0 if vulnerabilities == 0 else 1)

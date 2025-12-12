@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-📊 LOG ANALYZER - Analisi e visualizzazione log audit
+LOG ANALYZER - Analisi e visualizzazione log audit
 Strumento per amministratori cybersecurity
 """
 
@@ -17,7 +17,7 @@ class LogAnalyzer:
     def __init__(self, log_dir: str = "logs"):
         self.log_dir = Path(log_dir)
         if not self.log_dir.exists():
-            print(f"❌ Directory {log_dir} non trovata")
+            print(f"ERRORE: Directory {log_dir} non trovata")
             return
     
     def load_log(self, log_type: str) -> List[Dict]:
@@ -168,18 +168,18 @@ class LogAnalyzer:
         
         report = f"""
 ╔════════════════════════════════════════════════════════════════════════╗
-║                   🔒 COMPREHENSIVE SECURITY REPORT                    ║
-║                        Last {hours} hours                                   ║
+║                   COMPREHENSIVE SECURITY REPORT                        ║
+║                        Last {hours} hours                              ║     
 ╚════════════════════════════════════════════════════════════════════════╝
 
-📊 EXECUTIVE SUMMARY
+EXECUTIVE SUMMARY
 {'='*76}
 • Security Incidents: {threats['total']} ({threats['blocked']} blocked)
 • Authentication Attempts: {auth['total']} ({auth.get('success_rate', 'N/A')} success rate)
 • Resource Accesses: {access['total']}
 • PII Leaks Prevented: {pii['leaks_prevented']}
 
-🚨 THREAT ANALYSIS
+THREAT ANALYSIS
 {'='*76}
 """
         
@@ -202,18 +202,18 @@ class LogAnalyzer:
                 for i, (query, risk) in enumerate(threats['top_queries'], 1):
                     report += f"   {i}. (Risk {risk}/10) {query}...\n"
         else:
-            report += "   ✅ No threats detected\n"
+            report += "   [OK] No threats detected\n"
         
         report += f"""
-🔐 AUTHENTICATION ANALYSIS
+AUTHENTICATION ANALYSIS
 {'='*76}
 """
         
         if auth['total'] > 0:
             report += f"""
 • Total Attempts: {auth['total']}
-• Successful: {auth['success']} ✅
-• Failed: {auth['failure']} ❌
+• Successful: {auth['success']} [OK]
+• Failed: {auth['failure']} [FAIL]
 • Success Rate: {auth['success_rate']}
 """
             
@@ -225,7 +225,7 @@ class LogAnalyzer:
             report += "   No authentication events\n"
         
         report += f"""
-📂 ACCESS AUDIT
+ACCESS AUDIT
 {'='*76}
 """
         
@@ -247,13 +247,13 @@ class LogAnalyzer:
             report += "   No access events\n"
         
         report += f"""
-🛡️  PII PROTECTION
+PII PROTECTION
 {'='*76}
 """
         
         if pii['total'] > 0:
             report += f"• Total PII Events: {pii['total']}\n"
-            report += f"• Leaks Prevented: {pii['leaks_prevented']} 🚫\n\n"
+            report += f"• Leaks Prevented: {pii['leaks_prevented']} [BLOCKED]\n\n"
             
             if pii['pii_types']:
                 report += "PII Types Detected:\n"
@@ -262,12 +262,12 @@ class LogAnalyzer:
                                              reverse=True):
                     report += f"   • {pii_type}: {count}\n"
         else:
-            report += "   ✅ No PII leakage detected\n"
+            report += "   [OK] No PII leakage detected\n"
         
         report += f"""
 ╔════════════════════════════════════════════════════════════════════════╗
-║  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}                                        ║
-║  Log Directory: {str(self.log_dir.absolute())[:50]:<50} ║
+║  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}             ║                           
+║  Log Directory: {str(self.log_dir.absolute())[:50]:<50}                ║
 ╚════════════════════════════════════════════════════════════════════════╝
 """
         
