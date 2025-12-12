@@ -42,10 +42,13 @@ class MemoryDB:
         self.sessions = {}  # patient_id: session_data
         
     def authenticate(self, patient_id: str, pin: str) -> bool:
-        """Autentica paziente"""
+        """Autentica paziente con timing-safe comparison"""
         if patient_id in self.patients:
             # In produzione: bcrypt.checkpw()
-            if self.patients[patient_id]["pin_hash"] == pin:
+            # Usa timing-safe comparison per prevenire timing attacks
+            import hmac
+            stored_pin = self.patients[patient_id]["pin_hash"]
+            if hmac.compare_digest(stored_pin.encode(), pin.encode()):
                 self.sessions[patient_id] = {
                     "authenticated_at": datetime.now(),
                     "is_active": True

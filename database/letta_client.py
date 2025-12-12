@@ -42,7 +42,7 @@ class LettaMedicalDB:
     def _check_connection(self):
         """Verifica connessione Letta server"""
         try:
-            response = self.session.get(f"{self.base_url}/api/health", timeout=2)
+            response = self.session.get(f"{self.base_url}/", timeout=2)
             if response.status_code == 200:
                 logger.info("Letta server connesso")
             else:
@@ -61,7 +61,7 @@ class LettaMedicalDB:
         
         try:
             # 1. Lista agenti esistenti
-            response = self.session.get(f"{self.base_url}/api/agents", timeout=5)
+            response = self.session.get(f"{self.base_url}/v1/agents/", timeout=5)
             response.raise_for_status()
             
             agents = response.json()
@@ -74,16 +74,16 @@ class LettaMedicalDB:
                     self.agents_cache[patient_id] = agent_id
                     return agent_id
             
-            # 3. Crea nuovo agente
+            # 3. Crea nuovo agente (usando Letta Free - GRATIS!)
             create_payload = {
                 "name": agent_name,
-                "persona": f"Assistente personale del paziente {patient_id}",
-                "human": f"Paziente {patient_id}",
-                "system": "Sei un assistente medico. Rispondi in italiano.",
+                "system": f"Sei un assistente medico per il paziente {patient_id}. Rispondi in italiano.",
+                "model": "letta/letta-free",
+                "embedding": "letta/letta-free"
             }
             
             response = self.session.post(
-                f"{self.base_url}/api/agents",
+                f"{self.base_url}/v1/agents/",
                 json=create_payload,
                 timeout=10
             )
@@ -97,7 +97,7 @@ class LettaMedicalDB:
             return agent_id
             
         except Exception as e:
-            logger.error(f"Errore gestione agente: {e}")
+            logger.error(f"Errore gestione agente: {e}", exc_info=True)
             return None
     
     def authenticate_patient(self, patient_id: str, pin: str) -> bool:
@@ -130,13 +130,13 @@ Dottore: {appointment_data.get('doctor', 'Dr. Verdi')}
 Stato: {appointment_data.get('status', 'confirmed')}"""
             
             payload = {
-                "agent_id": agent_id,
-                "message": message,
-                "role": "system"
+                "messages": [
+                    {"role": "user", "content": message}
+                ]
             }
             
             response = self.session.post(
-                f"{self.base_url}/api/agents/{agent_id}/messages",
+                f"{self.base_url}/v1/agents/{agent_id}/messages/",
                 json=payload,
                 timeout=10
             )
@@ -158,13 +158,13 @@ Stato: {appointment_data.get('status', 'confirmed')}"""
             
             # Query agente
             payload = {
-                "agent_id": agent_id,
-                "message": "Elenca tutti i miei appuntamenti (passati e futuri)",
-                "role": "user"
+                "messages": [
+                    {"role": "user", "content": "Elenca tutti i miei appuntamenti (passati e futuri)"}
+                ]
             }
             
             response = self.session.post(
-                f"{self.base_url}/api/agents/{agent_id}/messages",
+                f"{self.base_url}/v1/agents/{agent_id}/messages/",
                 json=payload,
                 timeout=10
             )
@@ -185,13 +185,13 @@ Stato: {appointment_data.get('status', 'confirmed')}"""
                 return "Servizio memoria non disponibile"
             
             payload = {
-                "agent_id": agent_id,
-                "message": query,
-                "role": "user"
+                "messages": [
+                    {"role": "user", "content": query}
+                ]
             }
             
             response = self.session.post(
-                f"{self.base_url}/api/agents/{agent_id}/messages",
+                f"{self.base_url}/v1/agents/{agent_id}/messages/",
                 json=payload,
                 timeout=15
             )
@@ -210,7 +210,7 @@ Stato: {appointment_data.get('status', 'confirmed')}"""
     def is_available(self) -> bool:
         """Verifica se Letta è disponibile"""
         try:
-            response = self.session.get(f"{self.base_url}/api/health", timeout=2)
+            response = self.session.get(f"{self.base_url}/", timeout=2)
             return response.status_code == 200
         except:
             return False

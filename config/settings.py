@@ -13,8 +13,8 @@ class Settings:
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     #ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     
-    # LLM Config
-    DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "gemini/gemini-2.0-flash")
+    # LLM Config (usando Letta Free - GRATIS)
+    DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "letta/letta-free")
     TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.7"))
     
     # Letta AI Config
@@ -39,9 +39,7 @@ class Settings:
     @classmethod
     def validate(cls):
         """Valida configurazione"""
-        if not cls.GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY mancante nel file .env")
-        # Letta è opzionale in fase di sviluppo
+        # Usando Ollama locale - nessuna API key richiesta
         return True
 
 settings = Settings()

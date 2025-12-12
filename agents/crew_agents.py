@@ -38,7 +38,9 @@ def create_privacy_guardian() -> Agent:
         tools=[check_privacy_violation],
         verbose=True,
         allow_delegation=False,
-        max_iter=3
+        max_iter=3,
+        max_execution_time=300,
+        max_rpm_limit=10
     )
 
 
@@ -81,7 +83,9 @@ def create_receptionist() -> Agent:
             get_my_appointments
         ],
         verbose=True,
-        allow_delegation=False
+        allow_delegation=False,
+        max_execution_time=300,
+        max_rpm_limit=10
     )
 
 
@@ -116,6 +120,8 @@ def create_info_agent() -> Agent:
         
         tools=[get_clinic_info],
         verbose=True,
-        allow_delegation=False
+        allow_delegation=False,
+        max_execution_time=300,
+        max_rpm_limit=10
     )
 

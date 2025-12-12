@@ -34,7 +34,17 @@ pip install letta
 letta --version
 ```
 
-### Step 2: Avvia Letta Server
+### Step 2: Configura OpenAI API Key
+
+```bash
+# IMPORTANTE: Letta richiede OpenAI API key per funzionare
+export OPENAI_API_KEY="sk-your-openai-key-here"
+
+# Oppure aggiungi a ~/.zshrc per persistenza:
+echo 'export OPENAI_API_KEY="sk-your-key"' >> ~/.zshrc
+```
+
+### Step 3: Avvia Letta Server
 
 ```bash
 # Nel venv letta
