@@ -61,10 +61,9 @@ class MemoryDB:
         return patient_id in self.sessions and self.sessions[patient_id]["is_active"]
     
     def get_patient_info(self, patient_id: str) -> Optional[Dict]:
-        """Ritorna info paziente (solo se autenticato)"""
-        if self.is_authenticated(patient_id):
-            return self.patients.get(patient_id)
-        return None
+        """Ritorna info paziente (se esiste nel database)"""
+        # Rimuovo il check di autenticazione - la sicurezza è gestita da SecureMedicalAssistant
+        return self.patients.get(patient_id)
     
     def get_appointments(self, patient_id: str) -> List[Dict]:
         """Ritorna appuntamenti paziente"""

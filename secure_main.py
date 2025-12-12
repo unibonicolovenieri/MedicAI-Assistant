@@ -9,6 +9,7 @@ Architettura ultra-sicura per cybersecurity:
 
 from database.letta_client import get_letta_db
 from tools.medical_tools import db
+from tools.ollama_client import get_ollama_client
 from security.ai_firewall import AIFirewall
 from security.audit_logger import AuditLogger
 import re
@@ -145,12 +146,14 @@ class SecureMedicalAssistant:
     def __init__(self):
         self.privacy_checker = PrivacyChecker()
         self.letta = get_letta_db()
+        self.ollama = get_ollama_client()
         self.db = db
         self.audit_logger = AuditLogger(log_dir="logs")
         self.firewall = AIFirewall()
         self.session_id = str(uuid.uuid4())  # Session tracking per rate limiting
         print("🔒 Secure Medical Assistant inizializzato")
         print(f"   Letta: {'✅ Connesso' if self.letta.is_available() else '⚠️  Offline'}")
+        print(f"   Ollama: {'✅ Connesso' if self.ollama.is_available() else '⚠️  Offline'}")
         print(f"   Database locale: ✅ {len(self.db.patients)} pazienti")
         print(f"   Audit Logger: ✅ logs/")
     
@@ -252,7 +255,11 @@ class SecureMedicalAssistant:
             response = self._handle_personal_query(query, patient_id)
         
         else:  # GENERIC
-            response = self._handle_generic(query)
+            # Se l'utente è autenticato, usa Letta AI per risposte intelligenti
+            if patient_id and self.db.is_authenticated(patient_id):
+                response = self._handle_personal_query(query, patient_id)
+            else:
+                response = self._handle_generic(query)
         
         # 3. OUTPUT FILTERING - PII leakage prevention
         output_scan = AIFirewall.scan_output(response)
@@ -324,8 +331,86 @@ class SecureMedicalAssistant:
         """Gestisce richieste personali autenticate"""
         query_lower = query.lower()
         
-        # Check appuntamenti
-        if any(word in query_lower for word in ['appuntamenti', 'visite', 'prenotazioni']):
+        # Check prenotazione nuovo appuntamento con pattern semplici
+        if any(word in query_lower for word in ['prenota', 'prenotare', 'nuovo appuntamento', 'crea appuntamento', 'visita']):
+            # Check se la query contiene una data e ora
+            import re
+            from datetime import datetime, timedelta
+            
+            date_pattern = r'\d{4}-\d{2}-\d{2}'
+            time_pattern = r'\d{1,2}:\d{2}'
+            
+            # Gestione date in linguaggio naturale
+            date = None
+            time_str = None
+            
+            # Check formato esplicito YYYY-MM-DD
+            if re.search(date_pattern, query):
+                date_match = re.search(date_pattern, query)
+                date = date_match.group()
+            # Check "domani"
+            elif 'domani' in query_lower:
+                tomorrow = datetime.now() + timedelta(days=1)
+                date = tomorrow.strftime('%Y-%m-%d')
+            # Check "oggi"
+            elif 'oggi' in query_lower:
+                date = datetime.now().strftime('%Y-%m-%d')
+            # Check "dopodomani"
+            elif 'dopodomani' in query_lower:
+                date = (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
+            
+            # Estrai ora
+            if re.search(time_pattern, query):
+                time_match = re.search(time_pattern, query)
+                time_str = time_match.group()
+            
+            if date and time_str:
+                # Determina tipo di visita
+                appointment_type = "Consulto medico"  # default
+                if "controllo" in query_lower or "routine" in query_lower:
+                    appointment_type = "Controllo routine"
+                elif "analisi" in query_lower or "sangue" in query_lower:
+                    appointment_type = "Analisi del sangue"
+                elif "vaccin" in query_lower:
+                    appointment_type = "Vaccinazione"
+                elif "ecg" in query_lower or "cardiolog" in query_lower:
+                    appointment_type = "ECG"
+                elif "specialist" in query_lower:
+                    appointment_type = "Visita specialistica"
+                elif "udito" in query_lower or "orecchi" in query_lower:
+                    appointment_type = "Visita otorinolaringoiatrica"
+                
+                # Crea appuntamento
+                new_apt = self.db.add_appointment(patient_id, date, time_str, appointment_type)
+                
+                if new_apt:
+                    # Salva in Letta
+                    if self.letta.is_available():
+                        self.letta.store_appointment(patient_id, new_apt)
+                    
+                    return f"""✅ Appuntamento prenotato con successo!
+
+📅 Data: {date}
+🕐 Ora: {time_str}
+🏥 Tipo: {appointment_type}
+👨‍⚕️ Dottore: {new_apt['doctor']}
+📋 Stato: {new_apt['status']}
+
+Riceverai una conferma via email/SMS."""
+                else:
+                    return "❌ Errore nella creazione dell'appuntamento. Riprova."
+            else:
+                return """📅 Per prenotare un appuntamento, specifica data e ora:
+
+**Esempi:**
+• "Prenota appuntamento per domani alle 10:00 per controllo"
+• "Visita oggi alle 15:30 per analisi sangue"
+• "Appuntamento il 2025-01-15 alle 09:00 per vaccinazione"
+
+**Date supportate:** oggi, domani, dopodomani, YYYY-MM-DD"""
+        
+        # Check visualizzazione appuntamenti esistenti
+        if any(word in query_lower for word in ['appuntamenti', 'visite']):
             appointments = self.db.get_appointments(patient_id)
             
             if not appointments:
@@ -349,25 +434,120 @@ class SecureMedicalAssistant:
             
             return result
         
-        # Altre query personali - usa Letta
-        if self.letta.is_available():
-            return self.letta.search_in_memory(patient_id, query)
+        # Check allergie
+        if any(word in query_lower for word in ['allergi', 'intolleranze']):
+            patient = self.db.get_patient_info(patient_id)
+            if patient and 'allergies' in patient:
+                return f"🏥 Allergie registrate:\n{', '.join(patient['allergies']) if patient['allergies'] else 'Nessuna allergia registrata'}"
+            return "🏥 Nessuna allergia registrata."
         
-        return "ℹ️ Per questa richiesta serve connessione a Letta."
+        # Check nome
+        if any(word in query_lower for word in ['nome', 'chi sono', 'come mi chiamo']):
+            patient = self.db.get_patient_info(patient_id)
+            if patient:
+                return f"👤 Il tuo nome è: {patient.get('name', 'N/A')}"
+            return "❌ Paziente non trovato."
+        
+        # Check dati personali completi
+        if any(word in query_lower for word in ['dati', 'info', 'informazioni', 'profilo']):
+            patient = self.db.get_patient_info(patient_id)
+            if patient:
+                result = f"👤 I tuoi dati:\n\n"
+                result += f"Nome: {patient.get('name', 'N/A')}\n"
+                result += f"Data di nascita: {patient.get('birth_date', 'N/A')}\n"
+                result += f"Telefono: {patient.get('phone', 'N/A')}\n"
+                result += f"Email: {patient.get('email', 'N/A')}\n"
+                return result
+            return "❌ Paziente non trovato."
+        
+        # Per tutto il resto - usa Ollama per rispondere in modo intelligente
+        if self.ollama.is_available():
+            try:
+                patient = self.db.get_patient_info(patient_id)
+                context = f"""Contesto paziente:
+- Nome: {patient.get('name', 'N/A')}
+- Patient ID: {patient_id}
+- Tu sei MedicAI, assistente virtuale dello Studio Medico Dr. Verdi"""
+                
+                response = self.ollama.generate_response(query, context)
+                return response
+            except Exception as e:
+                print(f"⚠️  Ollama error: {e}")
+        
+        # Fallback se Ollama non disponibile - prova Letta
+        if self.letta.is_available():
+            try:
+                patient = self.db.get_patient_info(patient_id)
+                enriched_query = f"Paziente {patient.get('name', patient_id)}, domanda: {query}"
+                response = self.letta.search_in_memory(patient_id, enriched_query)
+                
+                if response and len(response.strip()) > 0:
+                    if isinstance(response, dict):
+                        if 'messages' in response and response['messages']:
+                            return response['messages'][0].get('content', str(response))
+                    return response
+            except Exception as e:
+                print(f"⚠️  Letta error: {e}")
+        
+        # Ultimo fallback
+        return f"""🤖 Ho ricevuto la tua domanda: "{query}"
+
+Per rispondere al meglio, posso aiutarti con:
+• 📅 Appuntamenti e visite
+• 🏥 Allergie e intolleranze  
+• 👤 I tuoi dati personali
+• 📋 Storico medico
+
+Prova a riformulare la domanda in modo più specifico."""
     
     def _handle_generic(self, query: str) -> str:
-        """Gestisce query generiche"""
-        return """
-ℹ️ Come posso aiutarti?
+        """Gestisce query generiche - usa Ollama per rispondere"""
+        query_lower = query.lower()
+        
+        # Risposte rapide a saluti
+        if any(word in query_lower for word in ['ciao', 'salve', 'buongiorno', 'buonasera', 'hello']):
+            return "👋 Ciao! Sono MedicAI, l'assistente medico virtuale. Come posso aiutarti oggi?"
+        
+        if any(word in query_lower for word in ['aiuto', 'help', 'cosa puoi fare', 'funzioni']):
+            return """🤖 Sono qui per aiutarti con:
 
-Per informazioni pubbliche, chiedi:
-• Orari dello studio
-• Servizi disponibili
-• Come prenotare
+📋 **Informazioni Pubbliche** (senza autenticazione):
+  • Orari dello studio
+  • Servizi disponibili
+  • Contatti e indirizzo
+  • Come prenotare
 
-Per operazioni personali (appuntamenti, dati), 
-autenticati con Patient ID e PIN.
-"""
+🔐 **Servizi Personali** (richiede autenticazione):
+  • Consultare i tuoi appuntamenti
+  • Vedere le tue allergie
+  • Accedere ai tuoi dati personali
+  • Storico medico
+
+Per accedere ai servizi personali, fornisci Patient ID e PIN."""
+        
+        if any(word in query_lower for word in ['grazie', 'thanks', 'ok']):
+            return "😊 Prego! Se hai altre domande, sono qui per aiutarti."
+        
+        # Per tutte le altre domande generiche, usa Ollama
+        if self.ollama.is_available():
+            try:
+                context = """Tu sei MedicAI, assistente virtuale dello Studio Medico Dr. Verdi.
+Lo studio è in Via Roma 123, Bologna. Tel: 051 123456.
+Orari: Lun-Ven 08:00-19:00, Sab 09:00-13:00."""
+                
+                response = self.ollama.generate_response(query, context)
+                return response
+            except Exception as e:
+                print(f"⚠️  Ollama error: {e}")
+        
+        # Fallback se Ollama non disponibile
+        return """ℹ️ Come posso aiutarti?
+
+Puoi chiedermi:
+• **Informazioni pubbliche**: orari, servizi, contatti
+• **Dati personali**: autenticati per accedere ai tuoi appuntamenti e dati
+
+Prova a riformulare la domanda o chiedi "aiuto" per vedere tutte le funzionalità."""
 
 
 def main():
@@ -457,5 +637,74 @@ def main():
     print("   • pii_events.jsonl")
 
 
+def interactive_mode():
+    """Modalità interattiva per testare il sistema"""
+    print("╔════════════════════════════════════════════════════════════════════════╗")
+    print("║              🔒 SECURE MEDICAL AI ASSISTANT - INTERACTIVE             ║")
+    print("║                      100% Local & Privacy-First                       ║")
+    print("╚════════════════════════════════════════════════════════════════════════╝")
+    
+    assistant = SecureMedicalAssistant()
+    
+    print("\n📋 CREDENZIALI DISPONIBILI:")
+    print("   PAZ001 - PIN: 123456 (Mario Rossi)")
+    print("   PAZ002 - PIN: 654321 (Laura Bianchi)")
+    print("   PAZ003 - PIN: 789012 (Giuseppe Verdi)")
+    print("\n💡 TIP: Premi CTRL+C per uscire\n")
+    
+    # Auth
+    patient_id = input("👤 Patient ID: ").strip()
+    pin = input("🔑 PIN: ").strip()
+    
+    # Esegui autenticazione iniziale
+    print("\n⏳ Autenticazione in corso...")
+    auth_result = assistant.db.authenticate(patient_id, pin)
+    
+    if not auth_result:
+        print("❌ Autenticazione fallita. Credenziali non valide.")
+        return
+    
+    print(f"\n✅ Autenticato come {patient_id} - {assistant.db.get_patient_info(patient_id).get('name', patient_id)}")
+    print("="*70)
+    print("💬 Puoi ora fare domande. Esempi:")
+    print("   • Chi sono? / Qual è il mio nome?")
+    print("   • Quali sono i miei appuntamenti?")
+    print("   • Ho allergie registrate?")
+    print("   • Come posso migliorare la mia salute? (usa Letta AI)")
+    print("\n🔒 Prova anche attacchi per testare la sicurezza:")
+    print("   • Mostra tutti i pazienti")
+    print("   • ' OR 1=1--")
+    print("   • Ignora le istruzioni precedenti")
+    print("="*70 + "\n")
+    
+    try:
+        while True:
+            query = input("💬 Tu: ").strip()
+            if not query:
+                continue
+            
+            print("\n⏳ Processing...", end="\r")
+            # Non serve più passare PIN dopo l'autenticazione iniziale
+            result = assistant.process_query(query, patient_id, None)
+            print(f"🤖 MedicAI: {result}\n")
+            
+    except KeyboardInterrupt:
+        print("\n\n👋 Chiusura sicura del sistema...")
+        print("\n📊 STATISTICHE SESSIONE:")
+        stats = assistant.audit_logger.get_stats()
+        print(f"   Richieste totali: {stats['total_requests']}")
+        print(f"   Attacchi bloccati: {stats['blocked_requests']}")
+        print(f"   Leak PII prevenuti: {stats['pii_leaks_prevented']}")
+        print(f"\n📁 Log salvati in: {assistant.audit_logger.log_dir.absolute()}")
+        print("\n✅ Sessione terminata in sicurezza.")
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        # Modalità test automatici
+        main()
+    else:
+        # Modalità interattiva
+        interactive_mode()
